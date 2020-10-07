@@ -15,12 +15,13 @@ class SavingModel(db.Model):
     userName = db.Column(db.String())
     savings  = db.Column(db.Integer())
     salary   = db.Column(db.String())
+    isPrimary= db.Column(db.Boolean())
 
-    def __init__(self, userName, savings,salary):
+    def __init__(self, userName, savings,salary,isPrimary):
         self.userName = userName
         self.savings = savings
         self.salary = salary
-
+        self.isPrimary=isPrimary
     def __repr__(self):
         return f"<user {self.userName}>"
   
@@ -37,27 +38,28 @@ def handle_submission():
      dataName=data['userName']
 
      currentUsersData=SavingModel.query.filter_by(userName = dataName).count()
-     print(currentUsersData)
-     if (currentUsersData)==0:
-      userSavings = SavingModel(userName=dataName, savings=dataSavings, salary=dataSalary)
-      db.session.add(userSavings)
-      db.session.commit()
+     dataIsPrimary = False
 
-     userSavings = SavingModel.query.filter_by(salary = dataSalary).all()
-     s1 = [0]*10
-     results = [
-            {
-                "userName": userSaving.userName,
-                "savings": userSaving.savings,
-                "salary": userSaving.salary
-            } for userSaving in userSavings]
      percentile=0
-     total=len(userSavings)
+     total=1
      smaller=0 
+     if (currentUsersData==0):
+      dataIsPrimary=True
+      total=0
+     
+
+     userSavings = SavingModel(userName=dataName, savings=dataSavings, salary=dataSalary,isPrimary=dataIsPrimary)
+     db.session.add(userSavings)
+     db.session.commit()
+
+     userSavings = SavingModel.query.filter_by(salary = dataSalary).order_by('userName').all()
+ 
      for userSaving in userSavings:
-         if (userSaving.savings < dataSavings):
-             smaller=smaller+1
-             
+         if(userSaving.isPrimary):
+             total+=1
+             if (userSaving.savings < dataSavings):
+              smaller=smaller+1
+
      percentile=(smaller/total*100)
      
      #rounding to two decimal places
