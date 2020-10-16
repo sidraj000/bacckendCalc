@@ -23,7 +23,7 @@ class SavingModel(db.Model):
         self.salary = salary
         self.isPrimary=isPrimary
     def __repr__(self):
-        return f"<user {self.userName}>"
+        return f"<user: {self.userName} savings:{self.savings} salary:{self.salary} isPrimary:{self.isPrimary}>"
   
 @app.route('/total',methods=['GET'])
 def toal_users():
@@ -43,31 +43,45 @@ def handle_submission():
      percentile=0
      total=1
      smaller=0 
+     average=dataSavings
+
      if (currentUsersData==0):
       dataIsPrimary=True
       total=0
+      average=0
      
 
      userSavings = SavingModel(userName=dataName, savings=dataSavings, salary=dataSalary,isPrimary=dataIsPrimary)
      db.session.add(userSavings)
      db.session.commit()
 
-     userSavings = SavingModel.query.filter_by(salary = dataSalary).order_by('userName').all()
- 
+     userSavings = SavingModel.query.filter_by(salary = dataSalary,isPrimary=True).order_by('savings').all()
+
+
      for userSaving in userSavings:
-         if(userSaving.isPrimary):
-             total+=1
-             if (userSaving.savings < dataSavings):
-              smaller=smaller+1
+         total+=1
+         average+=userSaving.savings
+         if (userSaving.savings < dataSavings):
+          smaller=smaller+1         
 
-     percentile=(smaller/total*100)
      
-     #rounding to two decimal places
-     percentile=percentile*100
-     percentile=int(percentile)
-     percentile=float(percentile/100)
+     def round_to_two_digits(num):
+       return float(int(num*100)/100)
 
-     return {"Percentile":percentile}
+     average=average/total
+     percentile=(smaller/total*100)
+
+     percentile=round_to_two_digits(percentile)
+     average=round_to_two_digits(average)
+
+     totUsers=len(userSavings)
+     print(totUsers)
+     totUsers=int(totUsers*9/10)
+     totUsers-=1
+     top10=userSavings[totUsers].savings
+   
+
+     return {"Percentile":percentile,"Average":average,"Top10":top10}
     
 
 if __name__ == '__main__':
