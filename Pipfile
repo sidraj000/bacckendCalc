@@ -8,12 +8,9 @@ verify_ssl = true
 [packages]
 flask = "*"
 flask-sqlalchemy = "*"
-flask-marshmallow = "*"
-marshmallow-sqlalchemy = "*"
-psycopg2 = "*"
-gunicorn = "*"
 flask-cors = "*"
 flask-migrate = "*"
+psycopg2 = "*"
 
 [requires]
 python_version = "3.8"

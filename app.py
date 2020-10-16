@@ -2,6 +2,8 @@ from flask import Flask,request,jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_cors import CORS,cross_origin
+
+
 app = Flask(__name__)
 CORS(app)
 
@@ -24,7 +26,13 @@ class SavingModel(db.Model):
         self.isPrimary=isPrimary
     def __repr__(self):
         return f"<user: {self.userName} savings:{self.savings} salary:{self.salary} isPrimary:{self.isPrimary}>"
-  
+
+@app.route('/', methods=['GET'])
+def hello_world():
+    return {
+        'hello': 'world'
+    }
+
 @app.route('/total',methods=['GET'])
 def toal_users():
      userSavings = SavingModel.query.all()
